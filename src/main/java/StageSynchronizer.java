@@ -1,26 +1,40 @@
 import java.util.concurrent.CountDownLatch;
 
 public class StageSynchronizer {
-    private static int MESSAGERS_COUNT = 1;
+    private final int carsCount;
     private final CountDownLatch allReadyLatch;
-    private final CountDownLatch startMessageLatch;
-    private final CountDownLatch finishersLatch;
+    private Integer countReadyCars = 0;
+    private Integer countFinishedCars = 0;
 
     public StageSynchronizer(int carsCount) {
+        this.carsCount = carsCount;
         allReadyLatch = new CountDownLatch(carsCount);
-        startMessageLatch = new CountDownLatch(MESSAGERS_COUNT);
-        finishersLatch = new CountDownLatch(carsCount);
     }
 
     public CountDownLatch getAllReadyLatch() {
         return allReadyLatch;
     }
 
-    public CountDownLatch getStartMessageLatch() {
-        return startMessageLatch;
+    public void incrementCountReadyCars() {
+        synchronized (countReadyCars) {
+            countReadyCars++;
+            if (countReadyCars == carsCount) {
+                System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Гонка началась!!!");
+            }
+        }
     }
 
-    public CountDownLatch getFinishersLatch() {
-        return finishersLatch;
+    public void addFinishedCar(Car car) {
+        synchronized (countFinishedCars) {
+            countFinishedCars++;
+            if (countFinishedCars == 1) {//если прибыл первый, то победитель
+                System.out.println("Победил " + car.getName());
+            } else {
+                System.out.println("Финишировал " + car.getName());
+            }
+            if (countFinishedCars == carsCount) {//если все прибыли
+                System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Гонка закончилась!!!");
+            }
+        }
     }
 }

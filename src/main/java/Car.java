@@ -28,7 +28,8 @@ public class Car implements Runnable {
             Thread.sleep(500 + (int) (Math.random() * 800));
             System.out.println(this.name + " готов");
             stageSynchronizer.getAllReadyLatch().countDown();
-            stageSynchronizer.getStartMessageLatch().await();//ожидание сообщения о старте
+            stageSynchronizer.incrementCountReadyCars();
+            stageSynchronizer.getAllReadyLatch().await();//ожидание пока все приготовятся
             for (int i = 0; i < race.getStages().size(); i++) {
                 race.getStages().get(i).go(this);
             }
@@ -36,14 +37,6 @@ public class Car implements Runnable {
             e.printStackTrace();
         }
         //Задание 4. Победитель должен быть только один (ситуация с 0 или 2+ победителями недопустима).
-        synchronized (stageSynchronizer.getFinishersLatch()) {
-            if (stageSynchronizer.getFinishersLatch().getCount() == CARS_COUNT) {
-                System.out.println("Победил " + getName());
-            } else {
-                System.out.println("На " + (CARS_COUNT - stageSynchronizer.getFinishersLatch().getCount() + 1)
-                        + " месте участник " + getName());
-            }
-            stageSynchronizer.getFinishersLatch().countDown();
-        }
+        stageSynchronizer.addFinishedCar(this);
     }
 }

@@ -11,4 +11,5 @@ public class Race {
     public ArrayList<Stage> getStages() {
         return stages;
     }
+
 }

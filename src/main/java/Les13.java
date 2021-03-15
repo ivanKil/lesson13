@@ -1,3 +1,6 @@
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 public class Les13 {
     public static final int CARS_COUNT = 4;
 
@@ -10,18 +13,11 @@ public class Les13 {
             cars[i] = new Car(race, 20 + (int) (Math.random() * 10), stageSynchronizer);
         }
 
+        ExecutorService executorService = Executors.newFixedThreadPool(CARS_COUNT);
         for (int i = 0; i < cars.length; i++) {
-            new Thread(cars[i]).start();
+            executorService.execute(cars[i]);
         }
 
-        try {
-            stageSynchronizer.getAllReadyLatch().await();//ожидание пока все будут готовы
-            System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Гонка началась!!!");
-            stageSynchronizer.getStartMessageLatch().countDown();//после объявления о старте все стартуют
-            stageSynchronizer.getFinishersLatch().await();//ожидание пока все приедут
-            System.out.println("ВАЖНОЕ ОБЪЯВЛЕНИЕ >>> Гонка закончилась!!!");
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        executorService.shutdown();
     }
 }
